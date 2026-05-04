@@ -5,60 +5,72 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Carbon Footprint Evolution</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
+    html, body {
+      width: 100%;
+      overflow: hidden;
+      background: transparent;
       font-family: 'Inter', sans-serif;
-      background: #e8f4e1;
     }
 
     .wrapper {
       width: 100%;
-      background: transparent;
-      padding: 36px 32px 30px;
+      aspect-ratio: 820 / 630;
+    }
+
+    svg.chart {
+      width: 100%;
+      height: 100%;
+      display: block;
+      overflow: visible;
+    }
+
+    /* ── Bottom-row HTML inside <foreignObject> ── */
+    .bottom-row {
+      width: 100%;
+      height: 100%;
       display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    /* ── Centered page header (matches progression chart style) ── */
-    .page-header {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-      padding-bottom: 8px;
-    }
-    .header-year {
-      font-size: 36px;
-      font-weight: 800;
-      color: #1a4a1a;
-      letter-spacing: -0.5px;
+      align-items: flex-start;
+      gap: 18px;
+      padding: 6px 16px 12px;
       font-family: 'Inter', sans-serif;
     }
-    .header-title {
-      font-size: 28px;
-      font-weight: 600;
-      color: #1a4a1a;
-      font-family: 'Inter', sans-serif;
-    }
-    .header-unit {
-      font-size: 13px;
-      color: #7aaa6a;
-      font-family: 'Inter', sans-serif;
-      margin-top: 2px;
-    }
 
-    svg.chart { width: 100%; height: auto; overflow: visible; display: block; }
-
-    /* year slider section */
     .slider-section {
+      flex: 0 0 auto;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 10px;
+      padding-top: 12px;
+      min-width: 260px;
+    }
+    .year-heading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    .year-label-txt {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      color: #5a8a2a;
+      opacity: 0.7;
+    }
+    .year-badge {
+      font-size: 15px;
+      font-weight: 800;
+      color: #2a5e2a;
+      background: rgba(90,140,42,0.10);
+      padding: 1px 10px;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
     }
     .year-btns {
       display: flex;
@@ -110,49 +122,6 @@
       cursor: pointer;
     }
 
-    /* ── Bottom row: year-selector + legend side by side ── */
-    .bottom-row {
-      display: flex;
-      align-items: flex-start;
-      gap: 18px;
-    }
-    .slider-section {
-      flex: 0 0 auto;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      padding-top: 22px;      /* pushed down */
-      min-width: 260px;
-    }
-    .year-heading {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      margin-bottom: 4px;
-    }
-    .year-label-txt {
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 1.4px;
-      text-transform: uppercase;
-      color: #5a8a2a;
-      opacity: 0.7;
-      font-family: 'Inter', sans-serif;
-    }
-    .year-badge {
-      font-size: 15px;
-      font-weight: 800;
-      color: #2a5e2a;
-      background: rgba(90,140,42,0.10);
-      padding: 1px 10px;
-      border-radius: 20px;
-      letter-spacing: 0.5px;
-      font-family: 'Inter', sans-serif;
-    }
-
-    /* ── HTML legend box ── */
     .legend-box {
       flex: 1;
       background: rgba(238,245,232,0.93);
@@ -166,7 +135,6 @@
       font-size: 11.5px;
       color: #7aaa7a;
       font-style: italic;
-      font-family: 'Inter', sans-serif;
       padding-bottom: 8px;
       border-bottom: 0.8px solid #c4d8b4;
       margin-bottom: 6px;
@@ -186,7 +154,6 @@
       gap: 8px;
       cursor: pointer;
       font-size: 11px;
-      font-family: 'Inter', sans-serif;
       font-weight: 500;
       color: #2a5e2a;
       padding: 2px 0;
@@ -210,7 +177,6 @@
     .cf-leg-item.dim               { opacity: 0.35; }
     .cf-leg-item.dim .cf-name      { color: #9aba9a; }
 
-    /* ── Hover interactions on SVG foot bands ── */
     .cf-band   { cursor: pointer; transition: filter 0.2s, opacity 0.2s; }
     .cf-band.dim   { filter: brightness(0.65); opacity: 0.5; }
 
@@ -233,28 +199,34 @@
 </head>
 <body>
 <div class="wrapper">
-  <div class="page-header">
-    <span class="header-year" id="headerYear">2025</span>
-    <span class="header-title">Carbon Footprint Evolution</span>
-    <span class="header-unit">CO₂-eq kg / kg fish</span>
-  </div>
+  <svg class="chart" id="chart" viewBox="0 0 820 630" preserveAspectRatio="xMidYMid meet">
+    <!-- Header -->
+    <text x="410" y="32" text-anchor="middle" font-family="Inter,sans-serif"
+          font-size="30" font-weight="800" fill="#1a4a1a"
+          letter-spacing="-0.5" id="headerYear">2025</text>
+    <text x="410" y="55" text-anchor="middle" font-family="Inter,sans-serif"
+          font-size="20" font-weight="600" fill="#1a4a1a">Carbon Footprint Evolution</text>
+    <text x="410" y="70" text-anchor="middle" font-family="Inter,sans-serif"
+          font-size="11" fill="#7aaa6a">CO₂-eq kg / kg fish</text>
 
-  <svg class="chart" id="chart" viewBox="0 0 820 450" preserveAspectRatio="xMidYMid meet"></svg>
-
-  <div class="bottom-row">
-    <div class="slider-section">
-      <div class="year-heading">
-        <span class="year-label-txt">Select Year</span>
-        <span class="year-badge" id="yearBadge">2025</span>
+    <!-- Bottom row: slider + legend (HTML in foreignObject) -->
+    <foreignObject x="0" y="440" width="820" height="190">
+      <div xmlns="http://www.w3.org/1999/xhtml" class="bottom-row">
+        <div class="slider-section">
+          <div class="year-heading">
+            <span class="year-label-txt">Select Year</span>
+            <span class="year-badge" id="yearBadge">2025</span>
+          </div>
+          <div class="year-btns" id="yearBtns"></div>
+          <input type="range" id="yearSlider" min="2022" max="2025" step="1" value="2025" />
+        </div>
+        <div class="legend-box" id="legendBox">
+          <div class="legend-hint" id="legendHint">↑ hover · click to pin a category</div>
+          <div class="legend-items" id="legendItems"></div>
+        </div>
       </div>
-      <div class="year-btns" id="yearBtns"></div>
-      <input type="range" id="yearSlider" min="2022" max="2025" step="1" value="2025" />
-    </div>
-    <div class="legend-box" id="legendBox">
-      <div class="legend-hint" id="legendHint">↑ hover · click to pin a category</div>
-      <div class="legend-items" id="legendItems"></div>
-    </div>
-  </div>
+    </foreignObject>
+  </svg>
 </div>
 
 <script>
@@ -343,9 +315,6 @@ const defs = el('defs', {}, svg);
 // shared foot clipPath (foot coordinate space — all 6 paths)
 const clip = el('clipPath', { id: 'footClip' }, defs);
 FOOT_PATHS.forEach(d => el('path', { d }, clip));
-
-// background rect
-el('rect', { x: 0, y: 0, width: W, height: H, fill: 'none' }, svg);
 
 // grid lines & Y-axis labels
 const yTicks = [0, 0.5, 1.0, 1.5, 2.0, 2.5];
@@ -599,6 +568,18 @@ svg.addEventListener('click', e => {
     render(currentYear);
   }
 });
+</script>
+
+<script>
+  (function () {
+    if (window.parent === window) return;
+    function post() {
+      var h = document.documentElement.scrollHeight;
+      window.parent.postMessage({ type: 'carbon-footprint-height', height: h }, '*');
+    }
+    window.addEventListener('load', post);
+    new ResizeObserver(post).observe(document.documentElement);
+  })();
 </script>
 </body>
 </html>
